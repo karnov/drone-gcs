@@ -12,6 +12,7 @@ The following parameters are used to configure the plugin:
 * **target** - target location of files in the bucket
 * **strip_prefix** - strip the prefix from source path
 * **exclude** - glob exclusion patterns
+* **compress** - gzip files before they are uploaded
 
 The following secret values can be set to configure the plugin.
 

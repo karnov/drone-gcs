@@ -68,6 +68,11 @@ func main() {
 			Name:  "env-file",
 			Usage: "source env file",
 		},
+		cli.BoolFlag{
+			Name:   "compress",
+			Usage:  "gzip files before they are uploaded",
+			EnvVar: "PLUGIN_COMPRESS",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -90,6 +95,7 @@ func run(c *cli.Context) error {
 		Recursive:   c.Bool("recursive"),
 		Exclude:     c.StringSlice("exclude"),
 		DryRun:      c.Bool("dry-run"),
+		Compress:    c.Bool("compress"),
 	}
 
 	return plugin.Exec()

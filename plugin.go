@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"context"
 	"io"
 	"mime"
@@ -49,6 +50,10 @@ type Plugin struct {
 
 	// Dry run without uploading/
 	DryRun bool
+
+	// Compress contents with gzip and upload with the attribute for
+	// Content-Encoding: gzip
+	Compress bool
 }
 
 // Exec runs the plugin
@@ -131,6 +136,7 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 		"bucket":       p.Bucket,
 		"target":       target,
 		"content-type": content,
+		"compress":     p.Compress,
 	}).Info("Uploading file")
 
 	// when executing a dry-run we exit because we don't actually want to
@@ -151,7 +157,16 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 
 	obj := bkt.Object(target)
 
-	w := obj.NewWriter(ctx)
+	var w io.WriteCloser = obj.NewWriter(ctx)
+
+	if p.Compress {
+
+		// If compression is enabled, also wrap the writer in a gzip writer, added
+		// with insperation from https://github.com/jpillora's PR in drone-s3
+		// related to adding compression.
+		w = gzip.NewWriter(w)
+	}
+
 	if _, err := io.Copy(w, f); err != nil {
 		return err
 	}
@@ -166,9 +181,15 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 		}
 	}
 
-	_, err = obj.Update(ctx, storage.ObjectAttrsToUpdate{
+	attrs := storage.ObjectAttrsToUpdate{
 		ContentType: content,
-	})
+	}
+
+	if p.Compress {
+		attrs.ContentEncoding = "gzip"
+	}
+
+	_, err = obj.Update(ctx, attrs)
 	if err != nil {
 		return err
 	}
