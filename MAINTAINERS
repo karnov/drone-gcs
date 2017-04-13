@@ -31,6 +31,10 @@
     name = "Aurélien Thieriot"
     email = "a.thieriot@gmail.com"
     login = "athieriot"
+  [people.wyattjoh]
+    name = "Wyatt Johnson"
+    email = "wyattjoh@gmail.com"
+    login = "wyattjoh"
 
 [org]
   [org.core]

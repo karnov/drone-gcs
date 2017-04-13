@@ -1,51 +1,29 @@
 package main
 
 import (
+	"context"
+	"io"
 	"mime"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"errors"
+	"cloud.google.com/go/storage"
 	log "github.com/Sirupsen/logrus"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/mattn/go-zglob"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 )
 
-// Plugin defines the S3 plugin parameters.
+// Plugin defines the GCS plugin parameters.
 type Plugin struct {
-	Endpoint string
-	Key      string
-	Secret   string
-	Bucket   string
-
-	// if not "", enable server-side encryption
-	// valid values are:
-	//     AES256
-	//     aws:kms
-	Encryption string
-
-	// us-east-1
-	// us-west-1
-	// us-west-2
-	// eu-west-1
-	// ap-southeast-1
-	// ap-southeast-2
-	// ap-northeast-1
-	// sa-east-1
-	Region string
+	Credentials string
+	Bucket      string
 
 	// Indicates the files ACL, which should be one
 	// of the following:
 	//     private
-	//     public-read
-	//     public-read-write
-	//     authenticated-read
-	//     bucket-owner-read
-	//     bucket-owner-full-control
+	//     public
 	Access string
 
 	// Copies the files from the specified directory.
@@ -66,15 +44,9 @@ type Plugin struct {
 	// Recursive uploads
 	Recursive bool
 
-	YamlVerified bool
-
 	// Exclude files matching this pattern.
 	Exclude []string
 
-	// Use path style instead of domain style.
-	//
-	// Should be true for minio and false for AWS.
-	PathStyle bool
 	// Dry run without uploading/
 	DryRun bool
 }
@@ -86,28 +58,29 @@ func (p *Plugin) Exec() error {
 		p.Target = p.Target[1:]
 	}
 
-	// create the client
-	conf := &aws.Config{
-		Region:           aws.String(p.Region),
-		Endpoint:         &p.Endpoint,
-		DisableSSL:       aws.Bool(strings.HasPrefix(p.Endpoint, "http://")),
-		S3ForcePathStyle: aws.Bool(p.PathStyle),
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// create the config
+	config, err := google.JWTConfigFromJSON([]byte(p.Credentials))
+	if err != nil {
+		return err
 	}
 
-	//Allowing to use the instance role or provide a key and secret
-	if p.Key != "" && p.Secret != "" {
-		conf.Credentials = credentials.NewStaticCredentials(p.Key, p.Secret, "")
-	} else if p.YamlVerified != true {
-		return errors.New("Security issue: When using instance role you must have the yaml verified")
+	// create the storage client with the application credentials
+	gcc, err := storage.NewClient(ctx, option.WithTokenSource(config.TokenSource(ctx)))
+	if err != nil {
+		return err
 	}
-	client := s3.New(session.New(), conf)
+	defer gcc.Close()
 
 	// find the bucket
 	log.WithFields(log.Fields{
-		"region":   p.Region,
-		"endpoint": p.Endpoint,
-		"bucket":   p.Bucket,
+		"bucket": p.Bucket,
 	}).Info("Attempting to upload")
+
+	// create the bucket handle
+	bkt := gcc.Bucket(p.Bucket)
 
 	matches, err := matches(p.Source, p.Exclude)
 	if err != nil {
@@ -134,59 +107,73 @@ func (p *Plugin) Exec() error {
 			target = "/" + target
 		}
 
-		// amazon S3 has pretty crappy default content-type headers so this pluign
-		// attempts to provide a proper content-type.
-		content := contentType(match)
-
-		// log file for debug purposes.
-		log.WithFields(log.Fields{
-			"name":         match,
-			"bucket":       p.Bucket,
-			"target":       target,
-			"content-type": content,
-		}).Info("Uploading file")
-
-		// when executing a dry-run we exit because we don't actually want to
-		// upload the file to S3.
-		if p.DryRun {
-			continue
-		}
-
-		f, err := os.Open(match)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"file":  match,
-			}).Error("Problem opening file")
-			return err
-		}
-		defer f.Close()
-
-		putObjectInput := &s3.PutObjectInput{
-			Body:        f,
-			Bucket:      &(p.Bucket),
-			Key:         &target,
-			ACL:         &(p.Access),
-			ContentType: &content,
-		}
-
-		if p.Encryption != "" {
-			putObjectInput.ServerSideEncryption = &(p.Encryption)
-		}
-
-		_, err = client.PutObject(putObjectInput)
-
-		if err != nil {
+		if err := p.uploadFile(ctx, bkt, match, target); err != nil {
 			log.WithFields(log.Fields{
 				"name":   match,
 				"bucket": p.Bucket,
 				"target": target,
 				"error":  err,
 			}).Error("Could not upload file")
-
 			return err
 		}
-		f.Close()
+	}
+
+	return nil
+}
+
+// uploadFile performs the actual uploading process.
+func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, match, target string) error {
+
+	// gcp has pretty crappy default content-type headers so this pluign
+	// attempts to provide a proper content-type.
+	content := contentType(match)
+
+	// log file for debug purposes.
+	log.WithFields(log.Fields{
+		"name":         match,
+		"bucket":       p.Bucket,
+		"target":       target,
+		"content-type": content,
+	}).Info("Uploading file")
+
+	// when executing a dry-run we exit because we don't actually want to
+	// upload the file to GCP.
+	if p.DryRun {
+		return nil
+	}
+
+	f, err := os.Open(match)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"file":  match,
+		}).Error("Problem opening file")
+		return err
+	}
+	defer f.Close()
+
+	obj := bkt.Object(target)
+
+	w := obj.NewWriter(ctx)
+	if _, err := io.Copy(w, f); err != nil {
+		return err
+	}
+
+	if err := w.Close(); err != nil {
+		return err
+	}
+
+	if p.Access == "public" {
+		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+			return err
+		}
+	}
+
+	_, err = obj.Update(ctx, storage.ObjectAttrsToUpdate{
+		ContentType: content,
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil

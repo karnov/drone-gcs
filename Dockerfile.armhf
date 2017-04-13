@@ -6,5 +6,5 @@ RUN apk update && \
     mailcap && \
   rm -rf /var/cache/apk/*
 
-ADD drone-s3 /bin/
-ENTRYPOINT ["/bin/drone-s3"]
+ADD drone-gcs /bin/
+ENTRYPOINT ["/bin/drone-gcs"]

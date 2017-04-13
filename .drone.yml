@@ -3,7 +3,7 @@ workspace:
 
 pipeline:
   test:
-    image: golang:1.6
+    image: golang:1.8
     environment:
       - CGO_ENABLED=0
     commands:
@@ -13,20 +13,20 @@ pipeline:
 
   latest:
     image: docker
-    repo: plugins/s3
+    repo: plugins/gcs
     tags: [ "latest", "1.0", "1" ]
     when:
       branch: master
       event: push
 
 plugin:
-  name: S3
-  desc: Publish files and artifacts to Amazon S3
+  name: GCS
+  desc: Publish files and artifacts to Google Cloud Storage
   type: publish
-  image: plugins/s3
+  image: plugins/gcs
   labels:
     - publish
     - artifacts
-    - amazon
-    - aws
-    - s3
+    - google cloud
+    - gcp
+    - gcs
