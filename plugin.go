@@ -62,7 +62,7 @@ func (p *Plugin) Exec() error {
 	defer cancel()
 
 	// create the config
-	config, err := google.JWTConfigFromJSON([]byte(p.Credentials))
+	config, err := google.JWTConfigFromJSON([]byte(p.Credentials), storage.ScopeFullControl)
 	if err != nil {
 		return err
 	}
@@ -102,10 +102,7 @@ func (p *Plugin) Exec() error {
 			continue
 		}
 
-		target := filepath.Join(p.Target, strings.TrimPrefix(match, p.StripPrefix))
-		if !strings.HasPrefix(target, "/") {
-			target = "/" + target
-		}
+		target := strings.TrimPrefix(filepath.Join(p.Target, strings.TrimPrefix(match, p.StripPrefix)), "/")
 
 		if err := p.uploadFile(ctx, bkt, match, target); err != nil {
 			log.WithFields(log.Fields{

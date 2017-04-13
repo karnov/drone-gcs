@@ -26,7 +26,6 @@ func main() {
 		cli.StringFlag{
 			Name:   "bucket",
 			Usage:  "gcs bucket",
-			Value:  "us-east-1",
 			EnvVar: "PLUGIN_BUCKET,GCS_BUCKET",
 		},
 		cli.StringFlag{
