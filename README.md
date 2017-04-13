@@ -44,8 +44,7 @@ docker run --rm \
   -e PLUGIN_SOURCE=<source> \
   -e PLUGIN_TARGET=<target> \
   -e PLUGIN_BUCKET=<bucket> \
-  -e AWS_ACCESS_KEY_ID=<token> \
-  -e AWS_SECRET_ACCESS_KEY=<secret> \
+  -e GOOGLE_APPLICATION_CREDENTIALS_CONTENTS=<application credentials json> \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
   plugins/gcs --dry-run
