@@ -14,7 +14,7 @@ pipeline:
 
   latest:
     image: docker
-    repo: plugins/gcs
+    repo: wyattjoh/drone-gcs
     tags: [ "latest", "1.0", "1" ]
     when:
       branch: master
@@ -24,7 +24,7 @@ plugin:
   name: GCS
   desc: Publish files and artifacts to Google Cloud Storage
   type: publish
-  image: plugins/gcs
+  image: wyattjoh/drone-gcs
   labels:
     - publish
     - artifacts
