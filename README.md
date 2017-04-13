@@ -8,6 +8,8 @@ Drone plugin to publish files and artifacts to Google Cloud Storage. For the
 usage information and a listing of the available options please take a look at
 [the docs](DOCS.md).
 
+Explore the code on SourceGraph: https://sourcegraph.com/github.com/wyattjoh/drone-gcs
+
 ## Build
 
 Build the binary with the following commands:
