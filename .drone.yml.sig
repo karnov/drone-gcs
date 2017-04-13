@@ -1,1 +1,22 @@
-eyJhbGciOiJIUzI1NiJ9.d29ya3NwYWNlOgogIGJhc2U6IC9nbwoKcGlwZWxpbmU6CiAgdGVzdDoKICAgIGltYWdlOiBnb2xhbmc6MS42CiAgICBlbnZpcm9ubWVudDoKICAgICAgLSBDR09fRU5BQkxFRD0wCiAgICBjb21tYW5kczoKICAgICAgLSBnbyB2ZXQKICAgICAgLSBnbyB0ZXN0IC1jb3ZlciAtY292ZXJwcm9maWxlPWNvdmVyYWdlLm91dAogICAgICAtIGdvIGJ1aWxkIC1sZGZsYWdzICItcyAtdyAtWCBtYWluLmJ1aWxkPSREUk9ORV9CVUlMRF9OVU1CRVIiIC1hIC10YWdzIG5ldGdvCgogIGxhdGVzdDoKICAgIGltYWdlOiBkb2NrZXIKICAgIHJlcG86IHBsdWdpbnMvczMKICAgIHRhZ3M6IFsgImxhdGVzdCIsICIxLjAiLCAiMSIgXQogICAgd2hlbjoKICAgICAgYnJhbmNoOiBtYXN0ZXIKICAgICAgZXZlbnQ6IHB1c2gKCnBsdWdpbjoKICBuYW1lOiBTMwogIGRlc2M6IFB1Ymxpc2ggZmlsZXMgYW5kIGFydGlmYWN0cyB0byBBbWF6b24gUzMKICB0eXBlOiBwdWJsaXNoCiAgaW1hZ2U6IHBsdWdpbnMvczMKICBsYWJlbHM6CiAgICAtIHB1Ymxpc2gKICAgIC0gYXJ0aWZhY3RzCiAgICAtIGFtYXpvbgogICAgLSBhd3MKICAgIC0gczMK.YHnxUTbvyyCMaRwfNIyfDQWjjQe3DBWKxUxcppWpffU
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+	<meta name="csrf-token" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZXh0Ijoid3lhdHQiLCJ0eXBlIjoiY3NyZiJ9.WHAHVksHVk16PpJcsrAeQ5iGdPioXXrKv46UCzgzaOM" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="/static/app.css" rel="stylesheet"/>
+  <link href="/static/favicon.ico" rel="icon" type="image/x-icon"/>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  window.STATE_FROM_SERVER={"csrf":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZXh0Ijoid3lhdHQiLCJ0eXBlIjoiY3NyZiJ9.WHAHVksHVk16PpJcsrAeQ5iGdPioXXrKv46UCzgzaOM","user":{"id":1,"login":"wyatt","email":"wyattjoh@gmail.com","avatar_url":"https://code.wyattjoh.com/avatars/1","active":false}};
+</script>
+<script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
