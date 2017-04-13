@@ -5,7 +5,7 @@ bucket.
 
 The following parameters are used to configure the plugin:
 
-* **credentials** - google application credentials (see https://developers.google.com/identity/protocols/application-default-credentials)
+* **credentials** - json contents of the google application credentials (see https://developers.google.com/identity/protocols/application-default-credentials)
 * **bucket** - bucket name
 * **acl** - access to files that are uploaded (`private`, `public`)
 * **source** - source location of the files, using a glob matching pattern
