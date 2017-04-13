@@ -1,9 +1,8 @@
 # drone-gcs
 
-[![Build Status](http://beta.drone.io/api/badges/drone-plugins/drone-gcs/status.svg)](http://beta.drone.io/drone-plugins/drone-gcs)
-[![Go Doc](https://godoc.org/github.com/drone-plugins/drone-gcs?status.svg)](http://godoc.org/github.com/drone-plugins/drone-gcs)
-[![Go Report](https://goreportcard.com/badge/github.com/drone-plugins/drone-gcs)](https://goreportcard.com/report/github.com/drone-plugins/drone-gcs)
-[![Join the chat at https://gitter.im/drone/drone](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/drone/drone)
+[![Build Status](https://drone.wyattjoh.com/api/badges/wyatt/drone-gcs/status.svg)](https://drone.wyattjoh.com/wyatt/drone-gcs)
+[![Go Doc](https://godoc.org/github.com/wyattjoh/drone-gcs?status.svg)](http://godoc.org/github.com/wyattjoh/drone-gcs)
+[![Go Report](https://goreportcard.com/badge/github.com/wyattjoh/drone-gcs)](https://goreportcard.com/report/github.com/wyattjoh/drone-gcs)
 
 Drone plugin to publish files and artifacts to Google Cloud Storage. For the
 usage information and a listing of the available options please take a look at
@@ -24,7 +23,7 @@ Build the docker image with the following commands:
 
 ```
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
-docker build --rm=true -t plugins/gcs .
+docker build --rm=true -t wyattjoh/drone-gcs .
 ```
 
 Please note incorrectly building the image for the correct x64 linux and with
@@ -47,5 +46,5 @@ docker run --rm \
   -e GOOGLE_APPLICATION_CREDENTIALS_CONTENTS=<application credentials json> \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
-  plugins/gcs --dry-run
+  wyattjoh/drone-gcs --dry-run
 ```

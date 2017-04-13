@@ -23,7 +23,7 @@ into a secret so it is not exposed to users. This can be done using the
 drone-cli.
 
 ```bash
-drone secret add --image=plugins/gcs \
+drone secret add --image=wyattjoh/drone-gcs \
     octocat/hello-world GOOGLE_APPLICATION_CREDENTIALS_CONTENTS @/path/to/application_credentials.json
 ```
 
@@ -43,7 +43,7 @@ Common example to upload to gcs:
 ```yaml
 pipeline:
   gcs:
-    image: plugins/gcs
+    image: wyattjoh/drone-gcs
     acl: public
     bucket: "my-bucket-name"
     credentials: ${GOOGLE_APPLICATION_CREDENTIALS_CONTENTS}
