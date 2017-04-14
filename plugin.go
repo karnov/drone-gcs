@@ -164,16 +164,36 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 		// If compression is enabled, also wrap the writer in a gzip writer, added
 		// with insperation from https://github.com/jpillora's PR in drone-s3
 		// related to adding compression.
-		w = gzip.NewWriter(w)
+		gw := gzip.NewWriter(w)
+
+		if _, err := io.Copy(gw, f); err != nil {
+			return err
+		}
+
+		if err := gw.Close(); err != nil {
+			return err
+		}
+	} else {
+
+		// Compression is not enabled, just do the copy.
+		if _, err := io.Copy(w, f); err != nil {
+			return err
+		}
 	}
 
-	if _, err := io.Copy(w, f); err != nil {
-		return err
-	}
-
+	// Close the underlying writer.
 	if err := w.Close(); err != nil {
 		return err
 	}
+
+	// log file for debug purposes.
+	log.WithFields(log.Fields{
+		"name":         match,
+		"bucket":       p.Bucket,
+		"target":       target,
+		"content-type": content,
+		"compress":     p.Compress,
+	}).Info("Uploaded file")
 
 	if p.Access == "public" {
 		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
@@ -193,6 +213,15 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 	if err != nil {
 		return err
 	}
+
+	// log file for debug purposes.
+	log.WithFields(log.Fields{
+		"name":         match,
+		"bucket":       p.Bucket,
+		"target":       target,
+		"content-type": content,
+		"compress":     p.Compress,
+	}).Info("Updated Attributes")
 
 	return nil
 }
