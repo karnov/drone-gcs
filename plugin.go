@@ -42,9 +42,6 @@ type Plugin struct {
 	// Strip the prefix from the target path
 	StripPrefix string
 
-	// Recursive uploads
-	Recursive bool
-
 	// Exclude files matching this pattern.
 	Exclude []string
 
