@@ -51,6 +51,9 @@ type Plugin struct {
 	// Compress contents with gzip and upload with the attribute for
 	// Content-Encoding: gzip
 	Compress bool
+
+	// Sets "Cache-Control" metadata for files being uploaded
+	CacheControl string
 }
 
 // Exec runs the plugin
@@ -185,11 +188,12 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 
 	// log file for debug purposes.
 	log.WithFields(log.Fields{
-		"name":         match,
-		"bucket":       p.Bucket,
-		"target":       target,
-		"content-type": content,
-		"compress":     p.Compress,
+		"name":          match,
+		"bucket":        p.Bucket,
+		"target":        target,
+		"content-type":  content,
+		"compress":      p.Compress,
+		"cache-control": p.CacheControl,
 	}).Info("Uploaded file")
 
 	if p.Access == "public" {
@@ -206,6 +210,10 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 		attrs.ContentEncoding = "gzip"
 	}
 
+	if p.CacheControl != "" {
+		attrs.CacheControl = p.CacheControl
+	}
+
 	_, err = obj.Update(ctx, attrs)
 	if err != nil {
 		return err
@@ -213,11 +221,12 @@ func (p *Plugin) uploadFile(ctx context.Context, bkt *storage.BucketHandle, matc
 
 	// log file for debug purposes.
 	log.WithFields(log.Fields{
-		"name":         match,
-		"bucket":       p.Bucket,
-		"target":       target,
-		"content-type": content,
-		"compress":     p.Compress,
+		"name":          match,
+		"bucket":        p.Bucket,
+		"target":        target,
+		"content-type":  content,
+		"compress":      p.Compress,
+		"cache-control": p.CacheControl,
 	}).Info("Updated Attributes")
 
 	return nil

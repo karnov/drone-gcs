@@ -68,6 +68,11 @@ func main() {
 			Usage:  "gzip files before they are uploaded",
 			EnvVar: "PLUGIN_COMPRESS",
 		},
+		cli.StringFlag{
+			Name:   "cache-control",
+			Usage:  "set cache-control header for files being uploaded",
+			EnvVar: "PLUGIN_CACHE_CONTROL",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -81,15 +86,16 @@ func run(c *cli.Context) error {
 	}
 
 	plugin := Plugin{
-		Credentials: c.String("application-credentials"),
-		Bucket:      c.String("bucket"),
-		Access:      c.String("acl"),
-		Source:      c.String("source"),
-		Target:      c.String("target"),
-		StripPrefix: c.String("strip-prefix"),
-		Exclude:     c.StringSlice("exclude"),
-		DryRun:      c.Bool("dry-run"),
-		Compress:    c.Bool("compress"),
+		Credentials:  c.String("application-credentials"),
+		Bucket:       c.String("bucket"),
+		Access:       c.String("acl"),
+		Source:       c.String("source"),
+		Target:       c.String("target"),
+		StripPrefix:  c.String("strip-prefix"),
+		Exclude:      c.StringSlice("exclude"),
+		DryRun:       c.Bool("dry-run"),
+		Compress:     c.Bool("compress"),
+		CacheControl: c.String("cache-control"),
 	}
 
 	return plugin.Exec()
